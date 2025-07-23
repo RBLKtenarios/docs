@@ -51,7 +51,7 @@
         "tab": "Optimazation",
         "groups": [
           {
-            "group": "API documentation",
+            "group": "Server Optimazation",
             "pages": [
               "api-reference/introduction"
             ]
