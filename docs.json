@@ -16,18 +16,13 @@
                     {
                         "group": "Server Tutorials",
                         "pages": [
-                            "index",
-                            "Uploadworld",
-                            "development"
+                            "Server-Tutorials/Upload-world"
                         ]
                     },
                     {
                         "group": "Plugin tutorials",
                         "pages": [
-                            "essentials/markdown",
-                            "uploadworld/uploadworld",
-                            "essentials/images",
-                            "essentials/reusable-snippets"
+                            "essentials/markdown"
                         ]
                     }
                 ]
