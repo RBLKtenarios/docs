@@ -71,18 +71,18 @@
     "global": {
       "anchors": [
         {
-          "anchor": "Documentation",
-          "href": "https://mintlify.com/docs",
+          "anchor": "Website",
+          "href": "https://galeniusnodes.com",
           "icon": "book-open-cover"
         },
         {
-          "anchor": "Community",
-          "href": "https://mintlify.com/community",
+          "anchor": "Billing website",
+          "href": "https://dash.galeniusnodes.com",
           "icon": "slack"
         },
         {
-          "anchor": "Blog",
-          "href": "https://mintlify.com/blog",
+          "anchor": "Discord",
+          "href": "https://discord.gg/NVNunhvW3G",
           "icon": "newspaper"
         }
       ]
