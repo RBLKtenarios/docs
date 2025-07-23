@@ -14,7 +14,7 @@
         "tab": "Guides",
         "groups": [
           {
-            "group": "Getting started",
+            "group": "Server Tutorials",
             "pages": [
               "index",
               "Uploadworld",
@@ -22,7 +22,7 @@
             ]
           },
           {
-            "group": "Writing content",
+            "group": "Plugin tutorials",
             "pages": [
               "essentials/markdown",
               "uploadworld/uploadworld",
