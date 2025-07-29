@@ -49,12 +49,12 @@
                 {
                     "anchor": "Billing website",
                     "href": "https://dash.galeniusnodes.com",
-                    "icon": "slack"
+                    "icon": "gamepad-2"
                 },
                 {
                     "anchor": "Discord",
                     "href": "https://discord.gg/NVNunhvW3G",
-                    "icon": "newspaper"
+                    "icon": "message-square"
                 }
             ]
         }
