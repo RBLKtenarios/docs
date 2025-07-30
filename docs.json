@@ -16,8 +16,8 @@
                     {
                         "group": "Server Tutorials",
                         "pages": [
-                            "Server-Tutorials/Upload-world"
-                            "Server-Tutorials/Change-version"
+                            "Server-Tutorials/Upload-world",
+                            "Server-Tutorials/Change-Version"
                         ]
                     },
                     {
