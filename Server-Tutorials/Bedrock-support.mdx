@@ -1,0 +1,80 @@
+# How to Add Bedrock Compatibility Support to a Java Minecraft Server
+
+> **Meta Description**: Want Bedrock and Java players on the same server? Learn how to add Bedrock support to your Java Minecraft server using Geyser and Floodgate – step-by-step!
+
+Enabling Bedrock support on your Java Edition server allows players on **mobile, console, and Windows 10** to join your server without needing Java. This is done using **GeyserMC**, a proxy that bridges Bedrock clients to Java servers.
+
+---
+
+## 📑 Table of Contents
+
+1. [Why Add Bedrock Support to Java?](#why-add-bedrock-support-to-java)
+2. [Requirements](#requirements)
+3. [Step-by-Step Guide](#step-by-step-guide)
+   - [1. Download Geyser and Floodgate](#1-download-geyser-and-floodgate)
+   - [2. Install Geyser on Your Server](#2-install-geyser-on-your-server)
+   - [3. Configure Geyser Settings](#3-configure-geyser-settings)
+   - [4. (Optional) Install Floodgate for No Java Account Login](#4-optional-install-floodgate-for-no-java-account-login)
+   - [5. Port Forward Bedrock Port](#5-port-forward-bedrock-port)
+4. [How Bedrock Players Join](#how-bedrock-players-join)
+5. [Troubleshooting](#troubleshooting)
+6. [FAQs](#faqs)
+7. [Final Notes](#final-notes)
+
+---
+
+## 🧩 Why Add Bedrock Support to Java?
+
+Allowing Bedrock players to join your Java server:
+
+- Expands your player base (mobile, Xbox, Switch, etc.)
+- Boosts community size
+- Increases compatibility without needing separate servers
+
+---
+
+## 🛠 Requirements
+
+- A **Java Minecraft server** (Spigot, Paper, Purpur, etc.)
+- Minecraft version **1.20+**
+- **Access to server files**
+- Recommended: PaperMC or Purpur
+
+---
+
+## 🚀 Step-by-Step Guide
+
+### 1. Download Geyser and Floodgate
+
+Download the latest versions of:
+
+- `Geyser-Spigot.jar`
+- `Floodgate-Spigot.jar` *(optional)*
+
+🔗 Official GeyserMC download:  
+https://geysermc.org/download
+
+---
+
+### 2. Install Geyser on Your Server
+
+1. Stop your server.
+2. Upload `Geyser-Spigot.jar` to the `/plugins/` folder.
+3. Start the server to generate config files.
+4. A folder named `/plugins/Geyser-Spigot/` will be created.
+
+---
+
+### 3. Configure Geyser Settings
+
+Edit `plugins/Geyser-Spigot/config.yml`:
+
+```yaml
+bedrock:
+  address: 0.0.0.0
+  port: 19132
+
+remote:
+  address: 127.0.0.1
+  port: 25565
+  auth-type: floodgate
