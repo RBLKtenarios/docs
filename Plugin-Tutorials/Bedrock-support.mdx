@@ -89,23 +89,6 @@ remote:
 
 ---
 
-## 🧾 Step 5: Open Firewall Port for Bedrock (UDP)
-
-Ensure your hosting or VPS firewall allows **UDP traffic on port 19132**:
-
-### For Linux (UFW):
-
-```bash
-sudo ufw allow 19132/udp
-```
-
-### For Hosting Panels:
-
-- Go to your **network/firewall settings**
-- Allow inbound **UDP** on port `19132`
-
----
-
 ## 🔎 Step 6: Test Bedrock Connection
 
 Now, launch Minecraft on a Bedrock device (mobile, console, Windows 10) and:
@@ -113,7 +96,7 @@ Now, launch Minecraft on a Bedrock device (mobile, console, Windows 10) and:
 1. Tap **Play** → **Servers** → **Add Server**
 2. Use:
    - **IP Address**: Your server’s public IP
-   - **Port**: `19132`
+   - **Port**: `19132` (Or the port you used earlier)
 
 You should be able to join using a Bedrock account 🎮
 
