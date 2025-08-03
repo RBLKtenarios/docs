@@ -1,161 +1,109 @@
 ---
-title: "How to Change Server Version in Minecraft (Step-by-Step Guide)"
-description: " Learn how to change the server version in Minecraft to match your preferred game version. Step-by-step guide for Java Edition, with tips for Spigot, Paper, Forge, and more. Changing your Minecraft server version lets you run mods, plugins, or just play with friends using a different game version. This guide shows you how to switch server versions for Java Edition with Spigot, Paper, Vanilla, Forge, and Fabric servers."
-sidebarTitle: "How to Change Server Version"
-icon: "arrows-rotate-reverse"
+title: "How to Change Your Minecraft Server Version (Manual Upload & Panel Installer)"
+description: "Learn how to change your Minecraft server version using either a manual server jar upload or a one-click installer from your hosting panel. Compatible with most hosting providers and panels like Pterodactyl."
+meta:
+  title: "Change Minecraft Server Version | Upload or Use Hosting Panel Installer"
+  icon: "globe"
+  description: "Switching Minecraft server versions made easy: follow this tutorial to upload your own server jar or use a built-in installer on your hosting panel like Pterodactyl."
+  keywords: [
+    "change Minecraft server version",
+    "Minecraft server jar upload",
+    "use hosting panel installer",
+    "Pterodactyl version change",
+    "Minecraft manual server setup",
+    "server jar install tutorial",
+    "update Minecraft server",
+    "Minecraft hosting tutorial",
+    "Minecraft version installer",
+    "Minecraft downgrade server version"
+  ]
 ---
 
-## Table of Contents
+# 🧭 How to Change Your Minecraft Server Version
 
-1. [Why Change Minecraft Server Version?](#why-change-minecraft-server-version)
-2. [Before You Begin](#before-you-begin)
-3. [How to Change Server Version in Minecraft](#how-to-change-server-version-in-minecraft)
-   - [1. Identify the Version You Want](#1-identify-the-version-you-want)
-   - [2. Download the Correct Server Jar](#2-download-the-correct-server-jar)
-   - [3. Replace Your Server Jar](#3-replace-your-server-jar)
-   - [4. Update Server Configuration (Optional)](#4-update-server-configuration-optional)
-4. [How to Change Versions on a Hosting Panel (e.g., Pterodactyl, Multicraft)](#how-to-change-versions-on-a-hosting-panel)
-5. [Recommended Sources for Server Jars](#recommended-sources-for-server-jars)
-6. [Common Issues and Fixes](#common-issues-and-fixes)
-7. [FAQs](#faqs)
-8. [Final Tips](#final-tips)
+Whether you want to downgrade or update your Minecraft server, there are two main ways to switch your server version:
 
----
-
-## Why Change Minecraft Server Version?
-
-Changing your server version can help you:
-
-- Play on older versions like 1.12.2 or 1.8.9 for PvP
-- Use modpacks that require Forge or Fabric
-- Install plugins compatible with a specific version
-- Improve server performance and stability
+1. **Manual Upload** – You upload the server `.jar` file yourself  
+2. **Hosting Panel Installer** – Use your host's built-in version selector or installer
 
 ---
 
-## Before You Begin
+## 📂 Method 1: Change Version by Uploading Server Jar (Manual)
 
-Before changing the version, make sure to:
+### 🔧 Step-by-Step Instructions
 
-- Backup your **world**, **plugins**, and **configs**
-- Let your players know (downgrading may break saves)
-- Check plugin/mod compatibility for your new version
+1. **Stop Your Server**  
+   Always stop your server before making any changes to avoid file corruption.
 
----
+2. **Delete/Backup Old Files**  
+   - Backup your `world`, `plugins`, and `configs` if needed.
+   - Delete the current `server.jar` or version-specific jar (like `paper-xxx.jar`).
 
-## How to Change Server Version in Minecraft
+3. **Download the Server Jar You Want**
+   - Go to the official site:
+     - Vanilla: [minecraft.net/download/server](https://www.minecraft.net/en-us/download/server)
+     - Paper: [papermc.io](https://papermc.io/)
+     - Spigot: Use [BuildTools](https://www.spigotmc.org/wiki/buildtools/)
+     - Forge: [files.minecraftforge.net](https://files.minecraftforge.net/)
+   - Download the desired `.jar` version to your computer.
 
-### 1. Identify the Version You Want
+4. **Upload the Jar to Your Server**
+   - Use **SFTP** (like FileZilla) or your host’s file manager.
+   - Upload the `.jar` to the root directory (usually where your `server.properties` is).
 
-Decide which version you need:
+5. **Rename the Jar (If Needed)**
+   - Rename it to `server.jar` or match what your host expects (e.g., `run.jar`).
+   - Adjust your `startup command` in the panel if it's not `server.jar`.
 
-- **PvP** servers often use 1.8.9
-- **Modded** servers use Forge or Fabric
-- **Plugin** servers typically use Spigot or Paper
-
-### 2. Download the Correct Server Jar
-
-Download the `.jar` file for your desired server type and version:
-
-| Server Type | Where to Download |
-
-|-------------|-------------------|
-
-| Vanilla     | [[minecraft.net](http://minecraft.net)](https://www.minecraft.net/en-us/download/server) |
-
-| Spigot      | [BuildTools](https://www.spigotmc.org/wiki/buildtools/) |
-
-| Paper       | [[papermc.io](http://papermc.io)](https://papermc.io/downloads) |
-
-| Forge       | [[files.minecraftforge.net](http://files.minecraftforge.net)](https://files.minecraftforge.net/) |
-
-| Fabric      | [[fabricmc.net](http://fabricmc.net)](https://fabricmc.net/use/) |
-
-\> 🔒 **Tip**: Always download from official or trusted sources to avoid malware.
-
-### 3. Replace Your Server Jar
-
-1. Stop your server.
-2. Delete or rename the old `server.jar`.
-3. Upload your new `.jar` and name it `server.jar` (or configure startup script accordingly).
-4. Start your server.
-
-### 4. Update Server Configuration (Optional)
-
-- \*`eula.txt`\*\*: Set `eula=true` if running for the first time
-- \*`server.properties`\*\*: Adjust settings (like port, level name)
-- **Mods/Plugins**: Update or replace to match the new version
+6. **Start the Server**
+   - Confirm everything loads correctly. Check the console logs for version confirmation.
 
 ---
 
-## How to Change Versions on a Hosting Panel
+## ⚙️ Method 2: Use Hosting Panel Installer
 
-If you're using a hosting provider like GaleniusNodes, Pterodactyl, or Multicraft:
+Many hosting providers (especially with Pterodactyl-based panels) offer one-click version switching.
 
-1. Log in to your dashboard.
-2. Stop your Minecraft server.
-3. Navigate to the **“Server Version”** or **“Jar Selector”** tab.
-4. Choose your desired version (e.g., Paper 1.20.1).
-5. Click **Install** or **Apply**.
-6. Start your server.
+### 📥 How to Use It:
 
-\> ✅ **Note**: Some hosts auto-download the required server files.
+1. **Go to the Version Installer Section**
+   - Usually labeled something like “Minecraft Version”, “Installer”, or “Server Jar Manager”
 
----
+2. **Choose Your Desired Version**
+   - Options often include:
+     - Vanilla
+     - Paper
+     - Spigot
+     - Forge
+     - Fabric
+   - Select the version number (e.g., 1.20.6, 1.19.4, etc.)
 
-## Recommended Sources for Server Jars
+3. **Click Install or Change**
+   - The panel will automatically download the server jar.
+   - Some hosts let you keep old worlds or reset everything — choose accordingly.
 
-- [PaperMC](https://papermc.io/downloads)
-- [Spigot BuildTools](https://www.spigotmc.org/wiki/buildtools/)
-- [Forge Downloads](https://files.minecraftforge.net/)
-- [Vanilla Minecraft Server](https://www.minecraft.net/en-us/download/server)
-
----
-
-## Common Issues and Fixes
-
-| Issue | Solution |
-
-|-------|----------|
-
-| Server won’t start | Check `eula.txt` or rename `.jar` properly |
-
-| Plugins not working | Ensure they're compatible with the new version |
-
-| World errors | Use a fresh world or convert using tools like MCA Selector |
+4. **Restart the Server**
+   - The new version will now be active!
 
 ---
 
-## FAQs
+## 🧠 Final Tips
 
-### Can I downgrade my Minecraft server version?
+- **Check Plugin Compatibility** – Plugins may break when switching major versions.
+- **Backups Are Crucial** – Always back up your `world` and configs before changing versions.
+- **Match Clients** – Players must use the same version as your server.
+> 💡 Need affordable hosting that supports Geyser out of the box? Check out [GaleniusNodes](https://galeniusnodes.com) — Hassle free experience.
 
-Yes, but world files and plugins may not work correctly. Always **back up** your server.
-
-### Will I lose data when changing server version?
-
-Not if you back up your **world**, **configs**, and **plugins** before switching.
-
-### Do players need to change their game version too?
-
-Yes. Players must use the **same version** as the server to join.
-
-### Can I use mods and plugins together?
-
-Yes, by using hybrid servers like **Mohist** or **Arclight**, but it's not officially supported.
 
 ---
 
-## Final Tips
+## ✅ Summary
 
-- Always test new server versions on a **test environment**
-- Use version-specific plugins/mods
-- Regularly back up your server to avoid data loss
-
----
-
-Need reliable Minecraft server hosting with version control?
-
-👉 [Check out GaleniusNodes – Fast, Affordable Minecraft Hosting](https://galeniusnodes.com)
+| Method             | Best For                              | Requirements              |
+|--------------------|----------------------------------------|----------------------------|
+| Manual Upload       | Full control, modpacks, custom builds | SFTP access or file manager |
+| Panel Installer     | Speed and ease                        | Hosting panel support     |
 
 ---
+
+Ready to switch your Minecraft server version? Pick your method and enjoy smooth version control!
