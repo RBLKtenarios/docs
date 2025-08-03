@@ -1,453 +1,195 @@
-# 🚀 Optimize Your Leaf Server (1.21.4/5)
+# Optimize Your Leaf Server (1.21.4/5)
 
-<div className="bg-gradient-to-r from-red-50 to-orange-50 border-l-4 border-red-500 p-6 my-6 rounded-r-lg">
-  <h2 className="text-xl font-bold text-red-700 mb-3">⚠️ Before You Start</h2>
-  
-  <div className="space-y-3">
-    <div className="flex items-start space-x-3">
-      <span className="text-2xl">💾</span>
-      <div>
-        <strong className="text-red-600">BACKUP YOUR SERVER!</strong> Seriously. Before changing configurations, especially experimental ones, back up your world, plugins, and configurations.
-      </div>
-    </div>
-    
-    <div className="flex items-start space-x-3">
-      <span className="text-2xl">📊</span>
-      <div>
-        <strong className="text-red-600">Profile, Don't Guess:</strong> Optimization is most effective when driven by data, not assumptions. Use a profiler like Spark to identify what is actually causing lag on your server. Don't just change settings randomly; find the bottleneck first!
-      </div>
-    </div>
-  </div>
-</div>
+## Before You Start:
 
-## 🔍 Profiling Your Server
+**BACKUP YOUR SERVER!** Seriously. Before changing configurations, especially experimental ones, back up your world, plugins, and configurations.
+
+**Profile, Don't Guess:** Optimization is most effective when driven by data, not assumptions. Use a profiler like Spark to identify what is actually causing lag on your server. Don't just change settings randomly; find the bottleneck first!
 
 ### For General Low TPS/Lag
-<div className="bg-blue-50 border border-blue-200 rounded-lg p-4 my-4">
 If your server consistently runs below 20 TPS, use the standard profiler:
-
 1. Run `/spark profiler start` in the console or as an op.
 2. Let it run for a few minutes during typical server activity (or when the TPS is low).
 3. Run `/spark profiler stop`.
 4. Open the generated link and analyze the "Hotspots" or call tree to see which operations are consuming the most main thread time overall.
-</div>
 
 ### For Sudden Lag Spikes/Freezes
-<div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 my-4">
 If your server usually runs fine but experiences sudden, sharp drops in TPS or freezes, target those specific moments:
-
 1. Run `/spark profiler --only-ticks-over 100` (you can adjust the 100ms threshold). This command specifically records data only for server ticks that take longer than the specified duration (normal ticks are 50ms).
 2. Let it run until you experience one or more lag spikes.
 3. Run `/spark profiler stop`.
 4. Analyze the report. It will show you exactly what the server was doing during those specific laggy ticks. Look for methods/operations with high percentages in the call tree within the captured spike data. This helps pinpoint the direct cause of the freeze (e.g., a specific plugin event, world generation, excessive entity processing).
-</div>
 
-### 📋 Best Practices
-<div className="grid md:grid-cols-3 gap-4 my-6">
-  <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-    <h4 className="font-semibold text-green-700 mb-2">🎯 Analyze Before Changing</h4>
-    <p className="text-sm text-green-600">Use the profiler results to guide your configuration changes. If Spark points to entity pathfinding, focus on the async-pathfinding settings. If it points to chunk loading, look at view distances or async-chunk-send.</p>
-  </div>
-  
-  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-    <h4 className="font-semibold text-blue-700 mb-2">🔄 Change Incrementally</h4>
-    <p className="text-sm text-blue-600">Modify only a few related settings at a time, then restart and test. This makes it easier to identify if a change caused problems or improved performance.</p>
-  </div>
-  
-  <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
-    <h4 className="font-semibold text-purple-700 mb-2">📖 Read Descriptions</h4>
-    <p className="text-sm text-purple-600">The configuration file itself has detailed descriptions (desc) for each option. Read them carefully!</p>
-  </div>
-</div>
+### Best Practices
+- **Analyze Before Changing:** Use the profiler results to guide your configuration changes. If Spark points to entity pathfinding, focus on the async-pathfinding settings. If it points to chunk loading, look at view distances or async-chunk-send.
+- **Change Incrementally:** Modify only a few related settings at a time, then restart and test. This makes it easier to identify if a change caused problems or improved performance.
+- **Read Descriptions:** The configuration file itself has detailed descriptions (desc) for each option. Read them carefully!
 
----
+## Key Optimization Areas in leaf-global.yml
 
-## ⚙️ Key Optimization Areas in leaf-global.yml
-
-<div className="bg-gray-50 border border-gray-200 rounded-lg p-4 my-4">
 We'll focus on sections with significant performance implications. Recommended values often prioritize performance, sometimes at the cost of minor vanilla behavior deviations or requiring newer hardware/Java versions.
-</div>
 
-## 1. ⚡ Asynchronous Operations (async)
+## 1. Asynchronous Operations (async)
 
-<div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-l-4 border-blue-500 p-4 my-4 rounded-r-lg">
-  <strong>Goal:</strong> Move calculations off the main server thread (which handles gameplay ticks) to background threads, reducing main thread load and improving TPS (Ticks Per Second).
-</div>
+The goal here is to move calculations off the main server thread (which handles gameplay ticks) to background threads, reducing main thread load and improving TPS (Ticks Per Second).
 
-### 🎯 async-entity-tracker.enabled: true
+### async-entity-tracker.enabled: true
 
-<div className="space-y-4">
-  <div className="bg-white border border-gray-200 rounded-lg p-4">
-    <h4 className="font-semibold text-gray-800 mb-2">💡 Why</h4>
-    <p className="text-gray-600">Entity tracking involves constantly checking which players are close enough to see which entities, and sending packets to add/update/remove entities from the player's view. This can be very demanding, especially with many players and entities. Enabling this option moves the bulk of these visibility checks and packet preparation tasks to separate background threads.</p>
-  </div>
-  
-  <div className="bg-white border border-gray-200 rounded-lg p-4">
-    <h4 className="font-semibold text-gray-800 mb-2">🔧 How it Works</h4>
-    <p className="text-gray-600">The system uses dedicated tracker threads. When enabled, internal data structures (like the set of players seeing an entity, or entity attribute maps) are switched to thread-safe versions (e.g., ConcurrentHashSet, ConcurrentHashMap). The core logic of checking distances (updatePlayer) runs on these background threads. Operations that must happen on the main thread (like teleporting a player when their vehicle is removed from view) are scheduled back to the main thread.</p>
-  </div>
-</div>
+**Why:** Entity tracking involves constantly checking which players are close enough to see which entities, and sending packets to add/update/remove entities from the player's view. This can be very demanding, especially with many players and entities. Enabling this option moves the bulk of these visibility checks and packet preparation tasks to separate background threads.
 
-#### 🔧 compat-mode: false (Recommended unless needed)
+**How it Works:** The system uses dedicated tracker threads. When enabled, internal data structures (like the set of players seeing an entity, or entity attribute maps) are switched to thread-safe versions (e.g., ConcurrentHashSet, ConcurrentHashMap). The core logic of checking distances (updatePlayer) runs on these background threads. Operations that must happen on the main thread (like teleporting a player when their vehicle is removed from view) are scheduled back to the main thread.
 
-<div className="bg-amber-50 border border-amber-200 rounded-lg p-4 my-4">
-  <div className="space-y-3">
-    <div>
-      <strong className="text-amber-700">Why compat-mode Exists:</strong> Some NPC plugins (most notably Citizens) create NPCs using real player entities. The async nature of the tracker can sometimes cause visual glitches (like NPCs briefly disappearing or lagging) with these specific types of NPCs because their updates might happen out of sync with the main thread.
-    </div>
-    
-    <div>
-      <strong className="text-amber-700">How compat-mode: true Works:</strong> The code specifically checks if an entity being tracked is a real player vs. a fake player (like a Citizens NPC). If compatibility mode is enabled, tracking updates for fake players are forced to run synchronously on the main thread, while tracking for all other entities (mobs, items, real players) remains asynchronous. This fixes the visual glitches for those specific NPC types.
-    </div>
-    
-    <div className="bg-amber-100 p-3 rounded">
-      <strong className="text-amber-800">💡 Recommendation:</strong> Leave <code className="bg-amber-200 px-1 rounded">compat-mode: false</code> for best performance. Only enable it (true) if you use Citizens or a similar real-entity NPC plugin and experience visibility issues. Packet-based/virtual entity NPC plugins (like ZNPCsPlus, Adyeshach, FancyNPCs) are generally unaffected and perform better, allowing compat-mode to remain false.
-    </div>
-  </div>
-</div>
+#### compat-mode: false (Recommended unless needed)
 
-<div className="grid md:grid-cols-2 gap-4 my-4">
-  <div className="bg-white border border-gray-200 rounded-lg p-4">
-    <h5 className="font-semibold text-gray-800 mb-2">🧵 max-threads</h5>
-    <p className="text-sm text-gray-600">Controls the size of the thread pool for entity tracking. Default (0 = 1/4 cores) is a safe start. Consider increasing to 1/2 of your CPU cores if Spark shows significant time spent in entity tracking, but avoid over-allocating threads.</p>
-  </div>
-  
-  <div className="bg-white border border-gray-200 rounded-lg p-4">
-    <h5 className="font-semibold text-gray-800 mb-2">⏱️ keepalive / queue-size</h5>
-    <p className="text-sm text-gray-600">Fine-tune thread pool behavior (idle thread timeout) and task queue limits. Defaults are usually reasonable.</p>
-  </div>
-</div>
+**Why compat-mode Exists:** Some NPC plugins (most notably Citizens) create NPCs using real player entities. The async nature of the tracker can sometimes cause visual glitches (like NPCs briefly disappearing or lagging) with these specific types of NPCs because their updates might happen out of sync with the main thread.
 
-### 🎯 async-target-finding.enabled: true
+**How compat-mode: true Works:** The code specifically checks if an entity being tracked is a real player vs. a fake player (like a Citizens NPC). If compatibility mode is enabled, tracking updates for fake players are forced to run synchronously on the main thread, while tracking for all other entities (mobs, items, real players) remains asynchronous. This fixes the visual glitches for those specific NPC types.
 
-<div className="bg-green-50 border border-green-200 rounded-lg p-4 my-4">
-  <strong className="text-green-700">Why:</strong> Moves the expensive part of mob AI (searching nearby entities to find a target) to background threads. Reduces main thread load from AI calculations.
-</div>
+**Recommendation:** Leave `compat-mode: false` for best performance. Only enable it (true) if you use Citizens or a similar real-entity NPC plugin and experience visibility issues. Packet-based/virtual entity NPC plugins (like ZNPCsPlus, Adyeshach, FancyNPCs) are generally unaffected and perform better, allowing compat-mode to remain false.
 
-### 🎯 async-pathfinding.enabled: true
+- **max-threads:** Controls the size of the thread pool for entity tracking. Default (0 = 1/4 cores) is a safe start. Consider increasing to 1/2 of your CPU cores if Spark shows significant time spent in entity tracking, but avoid over-allocating threads.
+- **keepalive / queue-size:** Fine-tune thread pool behavior (idle thread timeout) and task queue limits. Defaults are usually reasonable.
 
-<div className="space-y-4">
-  <div className="bg-white border border-gray-200 rounded-lg p-4">
-    <h4 className="font-semibold text-gray-800 mb-2">💡 Why</h4>
-    <p className="text-gray-600">Calculating navigation paths for mobs (especially complex ones) is CPU-intensive. This offloads the path computation to background threads, preventing the main thread from getting bogged down by mobs trying to figure out how to get somewhere.</p>
-  </div>
-  
-  <div className="bg-white border border-gray-200 rounded-lg p-4">
-    <h4 className="font-semibold text-gray-800 mb-2">🔧 How it Works</h4>
-    <p className="text-gray-600">When a mob needs a path, the request is sent to the async pathfinding thread pool. The mob's AI doesn't immediately get the path. Instead, the navigation system and AI behaviors are modified to wait for the path calculation to complete (using checks like <code className="bg-gray-100 px-1 rounded">path.isProcessed()</code>) or use a callback (<code className="bg-gray-100 px-1 rounded">AsyncPathProcessor.awaitProcessing</code>) that executes the logic (like starting to move along the path) after the path is received from the background thread. This prevents the main thread from stalling while waiting for the calculation.</p>
-  </div>
-</div>
+### async-target-finding.enabled: true
 
-<div className="grid md:grid-cols-3 gap-4 my-4">
-  <div className="bg-white border border-gray-200 rounded-lg p-4">
-    <h5 className="font-semibold text-gray-800 mb-2">🧵 max-threads</h5>
-    <p className="text-sm text-gray-600">Controls the pathfinding thread pool size. Default (0 = 1/4 cores) is conservative. Consider 1/3 of CPU cores if pathfinding (check Spark for PathFinder or navigation tasks) is a significant source of lag.</p>
-  </div>
-  
-  <div className="bg-white border border-gray-200 rounded-lg p-4">
-    <h5 className="font-semibold text-gray-800 mb-2">⏱️ keepalive / queue-size</h5>
-    <p className="text-sm text-gray-600">Tune thread pool behavior.</p>
-  </div>
-  
-  <div className="bg-white border border-gray-200 rounded-lg p-4">
-    <h5 className="font-semibold text-gray-800 mb-2">🚫 reject-policy</h5>
-    <p className="text-sm text-gray-600">Determines what happens if the pathfinding queue fills up.</p>
-  </div>
-</div>
+**Why:** Moves the expensive part of mob AI (searching nearby entities to find a target) to background threads. Reduces main thread load from AI calculations.
 
-<div className="grid md:grid-cols-2 gap-4 my-4">
-  <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-    <h5 className="font-semibold text-red-700 mb-2">FLUSH_ALL</h5>
-    <p className="text-sm text-red-600">All waiting pathfinding tasks are immediately run on the main server thread. Can cause a lag spike but processes all pending requests.</p>
-  </div>
-  
-  <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-    <h5 className="font-semibold text-blue-700 mb-2">CALLER_RUNS</h5>
-    <p className="text-sm text-blue-600">Only the new task that couldn't fit in the queue is run on the main server thread. Less likely to cause a large spike but might delay some pathfinding requests further.</p>
-  </div>
-</div>
+### async-pathfinding.enabled: true
 
-### 🎯 Other Async Settings
+**Why:** Calculating navigation paths for mobs (especially complex ones) is CPU-intensive. This offloads the path computation to background threads, preventing the main thread from getting bogged down by mobs trying to figure out how to get somewhere.
 
-<div className="grid md:grid-cols-2 gap-4 my-4">
-  <div className="bg-white border border-gray-200 rounded-lg p-4">
-    <h5 className="font-semibold text-gray-800 mb-2">🐾 async-mob-spawning.enabled: true</h5>
-    <p className="text-sm text-gray-600"><strong>Why:</strong> Offloads some calculations needed before spawning mobs. Requires Paper's <code className="bg-gray-100 px-1 rounded">per-player-mob-spawns: true</code> to be effective. Doesn't make the actual spawning async (that's unsafe).</p>
-  </div>
-  
-  <div className="bg-white border border-gray-200 rounded-lg p-4">
-    <h5 className="font-semibold text-gray-800 mb-2">🗺️ async-locator.enabled: true</h5>
-    <p className="text-sm text-gray-600"><strong>Why:</strong> Makes commands like <code className="bg-gray-100 px-1 rounded">/locate</code> and processes like Eye of Ender/Dolphin searches run in the background, preventing server hangs during these potentially slow lookups.</p>
-    <p className="text-xs text-gray-500 mt-1"><strong>threads:</strong> 1 or 2 is usually plenty.</p>
-  </div>
-  
-  <div className="bg-white border border-gray-200 rounded-lg p-4">
-    <h5 className="font-semibold text-gray-800 mb-2">📦 async-chunk-send.enabled: true</h5>
-    <p className="text-sm text-gray-600"><strong>Why:</strong> Prepares and sends chunk data to players asynchronously. Massively reduces lag when players join, teleport, or fly quickly. Highly recommended.</p>
-  </div>
-  
-  <div className="bg-white border border-gray-200 rounded-lg p-4">
-    <h5 className="font-semibold text-gray-800 mb-2">🔍 async-block-finding.enabled: true</h5>
-    <p className="text-sm text-gray-600"><strong>Why:</strong> Similar to target finding, but for AI searching for specific blocks. Reduces main thread load from certain AI tasks.</p>
-  </div>
-</div>
+**How it Works:** When a mob needs a path, the request is sent to the async pathfinding thread pool. The mob's AI doesn't immediately get the path. Instead, the navigation system and AI behaviors are modified to wait for the path calculation to complete (using checks like `path.isProcessed()`) or use a callback (`AsyncPathProcessor.awaitProcessing`) that executes the logic (like starting to move along the path) after the path is received from the background thread. This prevents the main thread from stalling while waiting for the calculation.
 
-### ⚠️ Experimental Features
+- **max-threads:** Controls the pathfinding thread pool size. Default (0 = 1/4 cores) is conservative. Consider 1/3 of CPU cores if pathfinding (check Spark for PathFinder or navigation tasks) is a significant source of lag.
+- **keepalive / queue-size:** Tune thread pool behavior.
+- **reject-policy:** Determines what happens if the pathfinding queue fills up.
+  - **FLUSH_ALL:** All waiting pathfinding tasks are immediately run on the main server thread. Can cause a lag spike but processes all pending requests.
+  - **CALLER_RUNS:** Only the new task that couldn't fit in the queue is run on the main server thread. Less likely to cause a large spike but might delay some pathfinding requests further.
 
-<div className="bg-orange-50 border border-orange-200 rounded-lg p-4 my-4">
-  <h4 className="font-semibold text-orange-700 mb-2">🧪 parallel-world-tracking (Experimental)</h4>
-  <p className="text-orange-600 mb-2"><strong>Why:</strong> Aims to tick different worlds/regions concurrently on multi-core CPUs.</p>
-  <p className="text-orange-600"><strong>Caveat:</strong> Highly experimental. Only enable (<code className="bg-orange-100 px-1 rounded">enabled: true</code>) if you have many worlds and are experiencing specific bottlenecks and understand the risks of concurrency issues. Default (false) is safer.</p>
-</div>
+### async-mob-spawning.enabled: true
 
-<div className="bg-blue-50 border border-blue-200 rounded-lg p-4 my-4">
-  <h4 className="font-semibold text-blue-700 mb-2">💾 async-playerdata-save</h4>
-  <p className="text-blue-600"><strong>Why:</strong> Tries to save player data asynchronously. Reduces max-mspt spikes shown on spark profiler reports.</p>
-</div>
+**Why:** Offloads some calculations needed before spawning mobs. Requires Paper's `per-player-mob-spawns: true` to be effective. Doesn't make the actual spawning async (that's unsafe).
 
----
+### async-locator.enabled: true
 
-## 2. 🚀 Performance Tweaks (performance)
+**Why:** Makes commands like `/locate` and processes like Eye of Ender/Dolphin searches run in the background, preventing server hangs during these potentially slow lookups.
 
-<div className="bg-gradient-to-r from-green-50 to-emerald-50 border-l-4 border-green-500 p-4 my-4 rounded-r-lg">
-  This section contains various targeted optimizations.
-</div>
+- **threads:** 1 or 2 is usually plenty.
 
-### ☕ Virtual Threads (Java 21+ Required)
+### async-chunk-send.enabled: true
 
-<div className="bg-gradient-to-r from-purple-50 to-indigo-50 border border-purple-200 rounded-lg p-4 my-4">
-  <h4 className="font-semibold text-purple-700 mb-3">Modern Java 21+ Features</h4>
-  <div className="space-y-2">
-    <div className="flex items-center space-x-2">
-      <span className="w-2 h-2 bg-purple-400 rounded-full"></span>
-      <code className="text-sm bg-purple-100 px-2 py-1 rounded">use-virtual-thread-for-user-authenticator.enabled: true</code>
-    </div>
-    <div className="flex items-center space-x-2">
-      <span className="w-2 h-2 bg-purple-400 rounded-full"></span>
-      <code className="text-sm bg-purple-100 px-2 py-1 rounded">use-virtual-thread-for-async-chat-executor.enabled: true</code>
-    </div>
-    <div className="flex items-center space-x-2">
-      <span className="w-2 h-2 bg-purple-400 rounded-full"></span>
-      <code className="text-sm bg-purple-100 px-2 py-1 rounded">use-virtual-thread-for-async-scheduler.enabled: true</code>
-    </div>
-  </div>
-  <p className="text-purple-600 mt-3"><strong>Why:</strong> Uses modern Java 21+ lightweight threads for tasks like player login authentication and potentially plugin async tasks. Reduces overhead compared to traditional threads if your server runs Java 21 or newer.</p>
-</div>
+**Why:** Prepares and sends chunk data to players asynchronously. Massively reduces lag when players join, teleport, or fly quickly. Highly recommended.
 
-### 📦 Block State Optimization
+### async-block-finding.enabled: true
 
-<div className="bg-white border border-gray-200 rounded-lg p-4 my-4">
-  <h4 className="font-semibold text-gray-800 mb-2">create-snapshot-on-retrieving-blockstate.enabled: false</h4>
-  <p className="text-gray-600 mb-2"><strong>Why:</strong> Avoids creating a copy (snapshot) of block data every time a plugin asks for it. This is significantly faster but relies on plugins not modifying the live data unintentionally.</p>
-  <div className="bg-yellow-50 border border-yellow-200 rounded p-3">
-    <p className="text-yellow-700 text-sm"><strong>Caveat:</strong> Generally safe, but if you encounter weird block-related plugin issues, try setting this back to true.</p>
-  </div>
-</div>
+**Why:** Similar to target finding, but for AI searching for specific blocks. Reduces main thread load from certain AI tasks.
 
-### 🎛️ Throttling/Skipping Unnecessary Work
+### parallel-world-tracking (Experimental)
 
-<div className="grid md:grid-cols-2 gap-4 my-4">
-  <div className="bg-white border border-gray-200 rounded-lg p-4">
-    <h5 className="font-semibold text-gray-800 mb-2">🧠 inactive-goal-selector-throttle.enabled: true</h5>
-    <p className="text-sm text-gray-600">Reduces AI calculations for mobs far from players.</p>
-  </div>
-  
-  <div className="bg-white border border-gray-200 rounded-lg p-4">
-    <h5 className="font-semibold text-gray-800 mb-2">🪣 throttle-hopper-when-full.enabled: true</h5>
-    <p className="text-sm text-gray-600">Stops hoppers constantly trying to push into full containers. <strong>Set skip-ticks: 8</strong> - 8 ticks matches vanilla cooldown.</p>
-  </div>
-  
-  <div className="bg-white border border-gray-200 rounded-lg p-4">
-    <h5 className="font-semibold text-gray-800 mb-2">🗺️ skip-map-item-data-updates</h5>
-    <p className="text-sm text-gray-600">Helps if plugins create many custom maps without renderers (like image maps). Minor vanilla impact (maps in inventory might not update until held/viewed).</p>
-  </div>
-  
-  <div className="bg-white border border-gray-200 rounded-lg p-4">
-    <h5 className="font-semibold text-gray-800 mb-2">😴 skip-ai-for-non-aware-mob.enabled: true</h5>
-    <p className="text-sm text-gray-600">Further reduces AI processing for inactive mobs that haven't been interacted with.</p>
-  </div>
-</div>
+**Why:** Aims to tick different worlds/regions concurrently on multi-core CPUs.
 
-### 📡 Network Optimization
+**Caveat:** Highly experimental. Only enable (`enabled: true`) if you have many worlds and are experiencing specific bottlenecks and understand the risks of concurrency issues. Default (false) is safer.
 
-<div className="bg-blue-50 border border-blue-200 rounded-lg p-4 my-4">
-  <h4 className="font-semibold text-blue-700 mb-2">reduce-packets.reduce-entity-move-packets.enabled: true</h4>
-  <p className="text-blue-600"><strong>Why:</strong> Sends fewer/smaller packets for small entity movements. Saves bandwidth and client processing, can make movement look smoother under load.</p>
-</div>
+### async-playerdata-save
 
-### 🎲 Random Number Generation
+**Why:** Tries to save player data asynchronously. Reduces max-mspt spikes shown on spark profiler reports.
 
-<div className="bg-white border border-gray-200 rounded-lg p-4 my-4">
-  <h4 className="font-semibold text-gray-800 mb-3">faster-random-generator.enabled: true (Java 17+ Required)</h4>
-  <p className="text-gray-600 mb-3"><strong>Why:</strong> Uses faster random number generation algorithms available in modern Java. Randomness is used everywhere, so this can give a noticeable boost.</p>
-  
-  <div className="space-y-3">
-    <div className="bg-green-50 border border-green-200 rounded p-3">
-      <strong className="text-green-700">random-generator: Xoroshiro128PlusPlus</strong>
-      <p className="text-green-600 text-sm">Good balance of speed and quality.</p>
-    </div>
-    
-    <div className="bg-red-50 border border-red-200 rounded p-3">
-      <strong className="text-red-700">⚠️ enable-for-worldgen: false</strong>
-      <p className="text-red-600 text-sm"><strong>CRITICAL:</strong> Setting this to true WILL CHANGE WORLD GENERATION. Ores, structures, etc., will differ from vanilla seeds. Only use true on NEW worlds where vanilla seed parity doesn't matter.</p>
-    </div>
-    
-    <div className="bg-red-50 border border-red-200 rounded p-3">
-      <strong className="text-red-700">⚠️ use-legacy-random-for-slime-chunk: true</strong>
-      <p className="text-red-600 text-sm"><strong>CRITICAL:</strong> Set to true on existing worlds to keep slime chunks in the same locations for farms. Set to false only on new worlds if you don't care about vanilla slime chunk locations.</p>
-    </div>
-  </div>
-</div>
+## 2. Performance Tweaks (performance)
 
-### 🎯 DAB (Distant Activation Behavior)
+This section contains various targeted optimizations.
 
-<div className="bg-white border border-gray-200 rounded-lg p-4 my-4">
-  <h4 className="font-semibold text-gray-800 mb-3">Distant Entity Optimization</h4>
-  
-  <div className="grid md:grid-cols-2 gap-4">
-    <div className="space-y-3">
-      <div className="bg-green-50 border border-green-200 rounded p-3">
-        <strong className="text-green-700">enabled: true</strong>
-        <p className="text-green-600 text-sm">Reduces AI processing (brain ticks, pathfinding) for distant entities.</p>
-      </div>
-      
-      <div className="bg-blue-50 border border-blue-200 rounded p-3">
-        <strong className="text-blue-700">dont-enable-if-in-water: true</strong>
-        <p className="text-blue-600 text-sm">Prevents land mobs far away from players from drowning unnecessarily due to paused AI.</p>
-      </div>
-    </div>
-    
-    <div className="space-y-3">
-      <div className="bg-gray-50 border border-gray-200 rounded p-3">
-        <strong className="text-gray-700">Configuration Values</strong>
-        <ul className="text-gray-600 text-sm mt-2 space-y-1">
-          <li>• start-distance: 8</li>
-          <li>• max-tick-freq: 20</li>
-          <li>• activation-dist-mod: 7</li>
-        </ul>
-        <p className="text-gray-600 text-xs mt-2">These are reasonable starting points for balancing optimization and behavior.</p>
-      </div>
-      
-      <div className="bg-yellow-50 border border-yellow-200 rounded p-3">
-        <strong className="text-yellow-700">blacklisted-entities</strong>
-        <p className="text-yellow-600 text-sm">Add entity types here (e.g., <code className="bg-yellow-100 px-1 rounded">minecraft:villager</code>, <code className="bg-yellow-100 px-1 rounded">minecraft:zombified_piglin</code>) if their AI needs to run even when far away (e.g., for specific farms).</p>
-      </div>
-    </div>
-  </div>
-</div>
+### Virtual Threads (Java 21+ Required)
 
-### 🚫 Entity Saving Prevention
+- `use-virtual-thread-for-user-authenticator.enabled: true`
+- `use-virtual-thread-for-async-chat-executor.enabled: true`
+- `use-virtual-thread-for-async-scheduler.enabled: true`
 
-<div className="grid md:grid-cols-2 gap-4 my-4">
-  <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-    <h5 className="font-semibold text-red-700 mb-2">💥 dont-save-primed-tnt.enabled: true</h5>
-    <p className="text-sm text-red-600">Prevents TNT entities from being saved, avoiding explosions caused by chunk loading/unloading cycles. Good for technical/redstone servers.</p>
-  </div>
-  
-  <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
-    <h5 className="font-semibold text-orange-700 mb-2">🪨 dont-save-falling-block.enabled: true</h5>
-    <p className="text-sm text-orange-600">Prevents glitched/duplicated sand/gravel after restarts or lag.</p>
-  </div>
-</div>
+**Why:** Uses modern Java 21+ lightweight threads for tasks like player login authentication and potentially plugin async tasks. Reduces overhead compared to traditional threads if your server runs Java 21 or newer.
+
+### create-snapshot-on-retrieving-blockstate.enabled: false
+
+**Why:** Avoids creating a copy (snapshot) of block data every time a plugin asks for it. This is significantly faster but relies on plugins not modifying the live data unintentionally.
+
+**Caveat:** Generally safe, but if you encounter weird block-related plugin issues, try setting this back to true.
+
+### Throttling/Skipping Unnecessary Work
+
+- **inactive-goal-selector-throttle.enabled: true:** Reduces AI calculations for mobs far from players.
+- **throttle-hopper-when-full.enabled: true (Set skip-ticks: 8):** Stops hoppers constantly trying to push into full containers. 8 ticks matches vanilla cooldown.
+- **skip-map-item-data-updates-if-map-does-not-have-craftmaprenderer.enabled: true:** Helps if plugins create many custom maps without renderers (like image maps). Minor vanilla impact (maps in inventory might not update until held/viewed).
+- **skip-ai-for-non-aware-mob.enabled: true:** Further reduces AI processing for inactive mobs that haven't been interacted with.
+
+### reduce-packets.reduce-entity-move-packets.enabled: true
+
+**Why:** Sends fewer/smaller packets for small entity movements. Saves bandwidth and client processing, can make movement look smoother under load.
+
+### faster-random-generator.enabled: true (Java 17+ Required)
+
+**Why:** Uses faster random number generation algorithms available in modern Java. Randomness is used everywhere, so this can give a noticeable boost.
+
+- **random-generator: Xoroshiro128PlusPlus:** Good balance of speed and quality.
+- **enable-for-worldgen: false:** **CRITICAL:** Setting this to true WILL CHANGE WORLD GENERATION. Ores, structures, etc., will differ from vanilla seeds. Only use true on NEW worlds where vanilla seed parity doesn't matter.
+- **use-legacy-random-for-slime-chunk: true:** **CRITICAL:** Set to true on existing worlds to keep slime chunks in the same locations for farms. Set to false only on new worlds if you don't care about vanilla slime chunk locations.
+
+### dab (Distant Activation Behavior)
+
+- **enabled: true:** Reduces AI processing (brain ticks, pathfinding) for distant entities.
+- **dont-enable-if-in-water: true:** Prevents land mobs far away from players from drowning unnecessarily due to paused AI.
+- **start-distance: 8, max-tick-freq: 20, activation-dist-mod: 7:** These are reasonable starting points for balancing optimization and behavior. Adjust based on observation if needed.
+- **blacklisted-entities:** Add entity types here (e.g., `minecraft:villager`, `minecraft:zombified_piglin`) if their AI needs to run even when far away (e.g., for specific farms).
+
+### dont-save-entity
+
+- **dont-save-primed-tnt.enabled: true:** Prevents TNT entities from being saved, avoiding explosions caused by chunk loading/unloading cycles. Good for technical/redstone servers.
+- **dont-save-falling-block.enabled: true:** Prevents glitched/duplicated sand/gravel after restarts or lag.
+
+## 3. Network Settings (network)
+
+- **protocol-support:** Enable specific protocols (jade, appleskin, etc.) only if you know your players use these client mods and you want server-side support for them. They don't improve performance otherwise.
+
+### OptimizeNonFlushPacketSending.enabled: false
+
+**Why false:** This optimization is **KNOWN TO BE INCOMPATIBLE** with ProtocolLib and potentially other network-heavy plugins. DO NOT ENABLE unless you are absolutely sure it won't break your plugins.
+
+### chat-message-signature.enabled: false
+
+**Why:** Disables cryptographic signing of chat messages. This prevents players from reporting chat to Mojang and disables the "secure chat" popups/indicators. Often preferred for servers handling moderation internally or running in offline mode.
+
+## 4. Miscellaneous (misc)
+
+### secure-seed.enabled: false
+
+**Why false:** Setting this to true uses a different internal seed for ore/structure placement, making seed cracking impossible but **FUNDAMENTALLY CHANGING** generation compared to vanilla seeds. Only enable (true) on NEW worlds where vanilla parity is not needed and seed cracking is a concern.
+
+### region-format-settings.region-format: MCA
+
+**Why MCA:** This is the standard, safe, compatible Minecraft Anvil format.
+
+**LINEAR:** Experimental Zstandard compression. Saves disk space but is **RISKY**, less compatible, and requires careful handling (see linked tools). DO NOT USE unless you fully understand the risks and have backups.
+
+### lag-compensation (Experimental)
+
+- **enabled: true, enable-for-water: true, enable-for-lava: true**
+
+**Why:** Attempts to make gameplay feel smoother during lag spikes.
+
+**Caveat:** Experimental. May have unintended side effects. Monitor behavior if enabled.
+
+## Inherited Settings (Gale, Purpur, Paper)
+
+Remember that Leaf builds upon Gale, Purpur, and Paper. Many crucial performance settings reside in their configuration files (`gale-global.yml`, `gale-world.yml`, `purpur.yml`, `paper-global.yml`, `paper-world-defaults.yml`).
+
+Refer to their documentation (linked in Useful Websites) and community guides (like Paper-chan's) for optimizing those settings as well.
+
+## Testing and Iteration
+
+1. After making changes, restart your server.
+2. Monitor performance using `/spark tps` and, more importantly, `/spark profiler` during normal gameplay.
+3. Observe gameplay: Do mobs behave correctly? Are there any new glitches?
+4. Adjust: If performance hasn't improved or issues arise, revert the last changes or tweak settings further. Optimization is often a process of trial and error tailored to your specific server load and hardware.
+
+If you run into trouble or have questions, don't hesitate to ask in the (Leaf Discord server). Good luck!
 
 ---
 
-## 3. 🌐 Network Settings (network)
-
-<div className="bg-white border border-gray-200 rounded-lg p-4 my-4">
-  <h4 className="font-semibold text-gray-800 mb-2">🔌 protocol-support</h4>
-  <p className="text-gray-600">Enable specific protocols (jade, appleskin, etc.) only if you know your players use these client mods and you want server-side support for them. They don't improve performance otherwise.</p>
-</div>
-
-<div className="bg-red-50 border border-red-200 rounded-lg p-4 my-4">
-  <h4 className="font-semibold text-red-700 mb-2">⚠️ OptimizeNonFlushPacketSending.enabled: false</h4>
-  <p className="text-red-600"><strong>Why false:</strong> This optimization is <strong>KNOWN TO BE INCOMPATIBLE</strong> with ProtocolLib and potentially other network-heavy plugins. DO NOT ENABLE unless you are absolutely sure it won't break your plugins.</p>
-</div>
-
-<div className="bg-blue-50 border border-blue-200 rounded-lg p-4 my-4">
-  <h4 className="font-semibold text-blue-700 mb-2">🔒 chat-message-signature.enabled: false</h4>
-  <p className="text-blue-600"><strong>Why:</strong> Disables cryptographic signing of chat messages. This prevents players from reporting chat to Mojang and disables the "secure chat" popups/indicators. Often preferred for servers handling moderation internally or running in offline mode.</p>
-</div>
-
----
-
-## 4. 🔧 Miscellaneous (misc)
-
-### 🌱 World Generation
-
-<div className="bg-red-50 border border-red-200 rounded-lg p-4 my-4">
-  <h4 className="font-semibold text-red-700 mb-2">⚠️ secure-seed.enabled: false</h4>
-  <p className="text-red-600"><strong>Why false:</strong> Setting this to true uses a different internal seed for ore/structure placement, making seed cracking impossible but <strong>FUNDAMENTALLY CHANGING</strong> generation compared to vanilla seeds. Only enable (true) on NEW worlds where vanilla parity is not needed and seed cracking is a concern.</p>
-</div>
-
-### 💾 Region Format
-
-<div className="grid md:grid-cols-2 gap-4 my-4">
-  <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-    <h5 className="font-semibold text-green-700 mb-2">✅ region-format: MCA</h5>
-    <p className="text-sm text-green-600"><strong>Why MCA:</strong> This is the standard, safe, compatible Minecraft Anvil format.</p>
-  </div>
-  
-  <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-    <h5 className="font-semibold text-red-700 mb-2">⚠️ LINEAR</h5>
-    <p className="text-sm text-red-600">Experimental Zstandard compression. Saves disk space but is <strong>RISKY</strong>, less compatible, and requires careful handling (see linked tools). DO NOT USE unless you fully understand the risks and have backups.</p>
-  </div>
-</div>
-
-### 🧪 Experimental Features
-
-<div className="bg-orange-50 border border-orange-200 rounded-lg p-4 my-4">
-  <h4 className="font-semibold text-orange-700 mb-2">lag-compensation (Experimental)</h4>
-  <div className="space-y-2">
-    <p className="text-orange-600"><code className="bg-orange-100 px-1 rounded">enabled: true, enable-for-water: true, enable-for-lava: true</code></p>
-    <p className="text-orange-600"><strong>Why:</strong> Attempts to make gameplay feel smoother during lag spikes.</p>
-    <p className="text-orange-600"><strong>Caveat:</strong> Experimental. May have unintended side effects. Monitor behavior if enabled.</p>
-  </div>
-</div>
-
----
-
-## 🏗️ Inherited Settings (Gale, Purpur, Paper)
-
-<div className="bg-gradient-to-r from-indigo-50 to-purple-50 border-l-4 border-indigo-500 p-4 my-4 rounded-r-lg">
-  <p className="text-indigo-700">Remember that Leaf builds upon Gale, Purpur, and Paper. Many crucial performance settings reside in their configuration files (<code className="bg-indigo-100 px-1 rounded">gale-global.yml</code>, <code className="bg-indigo-100 px-1 rounded">gale-world.yml</code>, <code className="bg-indigo-100 px-1 rounded">purpur.yml</code>, <code className="bg-indigo-100 px-1 rounded">paper-global.yml</code>, <code className="bg-indigo-100 px-1 rounded">paper-world-defaults.yml</code>).</p>
-  
-  <p className="text-indigo-700 mt-2">Refer to their documentation (linked in Useful Websites) and community guides (like Paper-chan's) for optimizing those settings as well.</p>
-</div>
-
----
-
-## 🧪 Testing and Iteration
-
-<div className="grid md:grid-cols-2 gap-6 my-6">
-  <div className="space-y-4">
-    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-      <h4 className="font-semibold text-blue-700 mb-2">1. 🔄 After making changes, restart your server.</h4>
-    </div>
-    
-    <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-      <h4 className="font-semibold text-green-700 mb-2">2. 📊 Monitor performance using <code className="bg-green-100 px-1 rounded">/spark tps</code> and, more importantly, <code className="bg-green-100 px-1 rounded">/spark profiler</code> during normal gameplay.</h4>
-    </div>
-  </div>
-  
-  <div className="space-y-4">
-    <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-      <h4 className="font-semibold text-yellow-700 mb-2">3. 👀 Observe gameplay: Do mobs behave correctly? Are there any new glitches?</h4>
-    </div>
-    
-    <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
-      <h4 className="font-semibold text-purple-700 mb-2">4. ⚙️ Adjust: If performance hasn't improved or issues arise, revert the last changes or tweak settings further. Optimization is often a process of trial and error tailored to your specific server load and hardware.</h4>
-    </div>
-  </div>
-</div>
-
-<div className="bg-gradient-to-r from-green-50 to-blue-50 border border-green-200 rounded-lg p-6 my-6 text-center">
-  <h3 className="text-xl font-bold text-gray-800 mb-2">🎉 Need Help?</h3>
-  <p className="text-gray-600">If you run into trouble or have questions, don't hesitate to ask in the <strong>Leaf Discord server</strong>. Good luck!</p>
-</div>
-
----
-
-<div className="bg-gray-100 border-t-4 border-gray-400 p-4 mt-8 text-center text-sm text-gray-600">
-  <em>This content was taken from: <a href="https://www.leafmc.one/docs/how-to/optimize-leaf-server" className="text-blue-600 hover:text-blue-800 underline">https://www.leafmc.one/docs/how-to/optimize-leaf-server</a></em>
-</div>
+*This content was taken from: https://www.leafmc.one/docs/how-to/optimize-leaf-server*
