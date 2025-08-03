@@ -2,23 +2,9 @@
 title: "🌍 How to Make Your Java Minecraft Server Cross-Compatible with Bedrock Using Geyser and Floodgate (2025)"
 icon: "globe"
 description: "Looking to let your **Bedrock Edition players** join your **Java Edition Minecraft server**? Whether you're a server owner or a hosting provider, enabling **crossplay support** using **GeyserMC** and **Floodgate** is the most reliable solution in 2025.
-
 This guide will walk you through the full process of installing and configuring Geyser and Floodgate plugins, allowing players from consoles, mobile, and Windows 10 to seamlessly connect to your Java server."
-meta:
-  title: "Enable Minecraft Java-Bedrock Crossplay with Geyser & Floodgate | 2025 Guide"
-  description: "Want Bedrock players on your Java server? This tutorial shows how to install and configure Geyser and Floodgate plugins for full cross-compatibility on Minecraft servers."
-  keywords: [
-    "Minecraft crossplay server",
-    "Java Bedrock compatibility",
-    "GeyserMC tutorial 2025",
-    "Install Geyser plugin",
-    "Floodgate setup",
-    "Minecraft Java Bedrock cross-platform",
-    "Minecraft server Bedrock support",
-    "Geyser Floodgate guide",
-    "Minecraft hosting crossplay",
-    "Enable Bedrock on Java server"
-  ]
+meta: "[object Object]"
+sidebarTitle: "Geyser Setup"
 ---
 
 ## ✅ What You'll Need
@@ -27,7 +13,7 @@ Before we start, here are the requirements:
 
 - A running **Java Minecraft server** (Paper, Spigot, or Velocity)
 - Access to your server’s **plugins folder** and **console**
-- **Java 17+** (for latest Geyser builds)
+- **Java 17\+** (for latest Geyser builds)
 - Internet access (for downloading plugins)
 - Optional: Pterodactyl panel or hosting control panel access
 
@@ -43,6 +29,7 @@ Before we start, here are the requirements:
 4. Upload it to your server’s `plugins` folder.
 
 📦 Example for Paper:
+
 ```bash
 /plugins/Geyser-Spigot.jar
 ```
@@ -58,6 +45,7 @@ Before we start, here are the requirements:
 3. Upload it to the `plugins` folder, alongside Geyser.
 
 📦 Example:
+
 ```bash
 /plugins/Floodgate-Spigot.jar
 ```
@@ -79,11 +67,11 @@ Or use your hosting panel’s restart button.
 
 ## ⚙️ Step 4: Configure Geyser
 
-1. Navigate to:  
+1. Navigate to:
+
    ```
    /plugins/Geyser-Spigot/config.yml
    ```
-
 2. Modify the following options:
 
 ```yaml
@@ -106,11 +94,13 @@ remote:
 Ensure your hosting or VPS firewall allows **UDP traffic on port 19132**:
 
 ### For Linux (UFW):
+
 ```bash
 sudo ufw allow 19132/udp
 ```
 
 ### For Hosting Panels:
+
 - Go to your **network/firewall settings**
 - Allow inbound **UDP** on port `19132`
 

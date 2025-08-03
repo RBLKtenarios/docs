@@ -17,14 +17,13 @@
                         "group": "Server Tutorials",
                         "pages": [
                             "Server-Tutorials/Upload-world",
-                            "Server-Tutorials/Change-version",
-                            "Server-Tutorials/Bedrock-support"
+                            "Server-Tutorials/Change-version"
                         ]
                     },
                     {
                         "group": "Plugin tutorials",
                         "pages": [
-                            "essentials/markdown"
+                            "Plugin-Tutorials/Bedrock-support"
                         ]
                     }
                 ]
