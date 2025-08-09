@@ -1,13 +1,12 @@
 ---
-title: "🌍 How to Make Your Java Minecraft Server Cross-Compatible with Bedrock Using Geyser and Floodgate (2025)"
+title: "How to Make Your Java Minecraft Server Cross-Compatible with Bedrock Using Geyser and Floodgate (2025)"
 icon: "globe"
-description: "Looking to let your **Bedrock Edition players** join your **Java Edition Minecraft server**? Whether you're a server owner or a hosting provider, enabling **crossplay support** using **GeyserMC** and **Floodgate** is the most reliable solution in 2025.
-This guide will walk you through the full process of installing and configuring Geyser and Floodgate plugins, allowing players from consoles, mobile, and Windows 10 to seamlessly connect to your Java server."
+description: "Looking to let your **Bedrock Edition players** join your **Java Edition Minecraft server**? Whether you're a server owner or a hosting provider, enabling **crossplay support** using **GeyserMC** and **Floodgate** is the most reliable solution in 2025. This guide will walk you through the full process of installing and configuring Geyser and Floodgate plugins, allowing players from consoles, mobile, and Windows 10 to seamlessly connect to your Java server."
 meta: "[object Object]"
 sidebarTitle: "Geyser Setup"
 ---
 
-## ✅ What You'll Need
+##  What You'll Need
 
 Before we start, here are the requirements:
 
@@ -19,7 +18,7 @@ Before we start, here are the requirements:
 
 ---
 
-## 🔌 Step 1: Download GeyserMC Plugin
+## Step 1: Download GeyserMC Plugin
 
 > Geyser acts as a proxy between Minecraft: Bedrock Edition and Minecraft: Java Edition.
 
@@ -28,7 +27,7 @@ Before we start, here are the requirements:
 3. Download the latest stable `.jar` file.
 4. Upload it to your server’s `plugins` folder.
 
-📦 Example for Paper:
+Example for Paper:
 
 ```bash
 /plugins/Geyser-Spigot.jar
@@ -36,7 +35,7 @@ Before we start, here are the requirements:
 
 ---
 
-## 🔒 Step 2: Download Floodgate (Optional but Recommended)
+## Step 2: Download Floodgate (Optional but Recommended)
 
 > Floodgate allows Bedrock players to join **without needing a Java account**.
 
@@ -44,7 +43,7 @@ Before we start, here are the requirements:
 2. Download the matching **Floodgate plugin** for your server type.
 3. Upload it to the `plugins` folder, alongside Geyser.
 
-📦 Example:
+Example:
 
 ```bash
 /plugins/Floodgate-Spigot.jar
@@ -52,7 +51,7 @@ Before we start, here are the requirements:
 
 ---
 
-## 🔁 Step 3: Restart Your Server
+## Step 3: Restart Your Server
 
 Restart your server so Geyser and Floodgate can generate their configuration files.
 
@@ -63,9 +62,8 @@ start
 
 Or use your hosting panel’s restart button.
 
----
-
-## ⚙️ Step 4: Configure Geyser
+## \
+ Step 4: Configure Geyser
 
 1. Navigate to:
 
@@ -85,11 +83,11 @@ remote:
   auth-type: floodgate
 ```
 
-🔐 If you're not using Floodgate, change `auth-type` to `online`.
+ If you're not using Floodgate, change `auth-type` to `online`.
 
 ---
 
-## 🔎 Step 5: Test Bedrock Connection
+##  Step 5: Test Bedrock Connection
 
 Now, launch Minecraft on a Bedrock device (mobile, console, Windows 10) and:
 
@@ -98,11 +96,11 @@ Now, launch Minecraft on a Bedrock device (mobile, console, Windows 10) and:
    - **IP Address**: Your server’s public IP
    - **Port**: `19132` (Or the port you used earlier)
 
-You should be able to join using a Bedrock account 🎮
+You should be able to join using a Bedrock account 
 
 ---
 
-## 🛠 Troubleshooting Tips
+##  Troubleshooting Tips
 
 - **"Unable to connect to world"** – Make sure your server’s Bedrock port is open (UDP 19132).
 - **"Java server not found"** – Check `remote.address` and ensure it's pointing to the Java server.
@@ -110,16 +108,16 @@ You should be able to join using a Bedrock account 🎮
 
 ---
 
-## 🌟 Why Use Geyser and Floodgate in 2025?
+##  Why Use Geyser and Floodgate in 2025?
 
-- ✅ Full crossplay support for mobile, console, and Windows 10
-- ✅ No Java account needed with Floodgate
-- ✅ Easy setup and active development
-- ✅ Seamless integration with hosting panels like Pterodactyl
+-  Full crossplay support for mobile, console, and Windows 10
+-  No Java account needed with Floodgate
+-  Easy setup and active development
+-  Seamless integration with hosting panels like Pterodactyl
 
 ---
 
-## 🚀 Final Thoughts
+##  Final Thoughts
 
 Adding Geyser and Floodgate to your Minecraft server unlocks a **larger player base**, increases **community engagement**, and is practically essential for modern hosting services. Whether you're running a small SMP or a full-scale network, enabling **Java-Bedrock compatibility** gives your server an edge in 2025.
 
@@ -127,15 +125,16 @@ Adding Geyser and Floodgate to your Minecraft server unlocks a **larger player b
 
 ---
 
-## 📚 Resources
+##  Resources
 
 - [GeyserMC Official Site](https://geysermc.org/)
 - [Floodgate GitHub](https://github.com/GeyserMC/Floodgate)
-- [PaperMC Downloads](https://papermc.io/downloads)
+- [PaperMC Downloads](https://papermc.io/downloads)\
+  (Leafmc)[https://www.leafmc.one/]
 
 ---
 
-## 💬 Need Help?
+##  Need Help?
 
 If you run into issues, join the [GeyserMC Discord](https://discord.gg/geysermc) or reach out to your hosting provider for support.
 
