@@ -1,5 +1,93 @@
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Link } from "react-router-dom";
+
+# 🚀 A Guide to Uploading Your Custom Minecraft World
+
+Ever wanted to bring your amazing single-player world to your server for friends to enjoy? Or maybe you found an epic adventure map online? This guide will walk you through the process of uploading a custom world to your Minecraft server using a game panel like Pterodactyl. It's easier than you think!
+
+The whole process can be broken down into three simple phases:
+
+- 📦 Prepare your world files.
+- 📤 Upload them to the server.
+- ⚙️ Configure the server to use the new world.
+
+Let's get started!
+
 ---
-title: "How to upload you world Into a Minecraft server"
-description: "In the tutorial below we will explain How to upload a wolrd To your Minecraft server Using Galeniusnodes"
-icon: "globe"
----
+
+<div className="space-y-8">
+  <Card>
+    <CardHeader>
+      <CardTitle>Step 1: 🖥️ Prepare Your World on Your Computer</CardTitle>
+    </CardHeader>
+    <CardContent>
+      <p>First, you need to find your world save and package it up for the journey.</p>
+      <ul className="list-disc list-outside pl-5 space-y-2 mt-4">
+        <li><strong>Find Your World Folder:</strong> Minecraft saves your worlds in a special folder. The folder you need will have the same name as your world in the game.</li>
+        <li><strong>Zip It Up! 🤐:</strong> To upload it easily, you need to compress the entire world folder into a single <code>.zip</code> file. Just right-click on the folder and choose an option like "Compress" or "Send to &gt; Compressed (zipped) folder." This will create one neat file, like <code>MyEpicCastle.zip</code>.</li>
+      </ul>
+    </CardContent>
+  </Card>
+
+  <Card>
+    <CardHeader>
+      <CardTitle>Step 2: 🛑 Prepare Your Server</CardTitle>
+    </CardHeader>
+    <CardContent>
+      <p>Now, let's get your server ready for its new world.</p>
+      <ul className="list-disc list-outside pl-5 space-y-2 mt-4">
+        <li><strong>Stop the Server:</strong> This is super important! Always stop your server before changing world files to avoid any issues. Look for the big "Stop" button in your panel.</li>
+        <li><strong>Open the File Manager 📂:</strong> Head over to the "File Manager" or "Files" section in your game panel. This is your server's home.</li>
+        <li><strong>Backup Your Old World (Safety First!):</strong> It's always a good idea to back up your current world. Simply find the folder named <code>world</code> (or your current world's name) and rename it to something like <code>world_old</code>.</li>
+      </ul>
+    </CardContent>
+  </Card>
+
+  <Card>
+    <CardHeader>
+      <CardTitle>Step 3: 📤 Upload and Unpack Your World</CardTitle>
+    </CardHeader>
+    <CardContent>
+      <p>Time to move your world from your computer to the server.</p>
+      <ul className="list-disc list-outside pl-5 space-y-2 mt-4">
+        <li><strong>Upload the <code>.zip</code> File:</strong> Find the "Upload" button in your file manager. Select the <code>.zip</code> file you created earlier and let it upload completely.</li>
+        <li><strong>Unzip the File:</strong> Once it's uploaded, click on the <code>.zip</code> file. You should see an option like "Unarchive" or "Decompress." Click it! This will extract your world folder onto the server.</li>
+      </ul>
+    </CardContent>
+  </Card>
+
+  <Card>
+    <CardHeader>
+      <CardTitle>Step 4: ⚙️ Configure the Server</CardTitle>
+    </CardHeader>
+    <CardContent>
+      <p>Your world is on the server, but the server doesn't know it should use it yet. Let's tell it!</p>
+      <ul className="list-disc list-outside pl-5 space-y-2 mt-4">
+        <li><strong>Find <code>server.properties</code>:</strong> In your main file directory, find the <code>server.properties</code> file. This is the main configuration file for your server.</li>
+        <li><strong>Change the <code>level-name</code>:</strong> Open the file and look for the line that starts with <code>level-name=</code>.</li>
+        <li><strong>Update It:</strong> Change the name after the <code>=</code> to the <strong>exact name</strong> of the folder you just unzipped. Remember, it's case-sensitive! For example: <code>level-name=MyEpicCastle</code>.</li>
+        <li><strong>Save Your Changes:</strong> Don't forget to hit "Save" before you close the file.</li>
+      </ul>
+    </CardContent>
+  </Card>
+
+  <Card>
+    <CardHeader>
+      <CardTitle>Step 5: ✅ Restart and Play!</CardTitle>
+    </CardHeader>
+    <CardContent>
+      <p>You're on the final step!</p>
+      <ul className="list-disc list-outside pl-5 space-y-2 mt-4">
+        <li><strong>Start Your Server:</strong> Head back to the main console and click "Start."</li>
+        <li><strong>Watch the Magic Happen:</strong> As the server boots up, you should see messages in the console saying it's preparing your new world.</li>
+        <li><strong>Jump In! 🎉:</strong> Launch Minecraft, connect to your server, and you should spawn right into your awesome new world. Congratulations!</li>
+      </ul>
+    </CardContent>
+  </Card>
+</div>
+
+<div className="text-center mt-12">
+    <Link to="/" className="text-blue-500 hover:text-blue-700 underline">
+        &larr; Back to Home
+    </Link>
+</div>
